@@ -2,6 +2,9 @@ import streamlit as st
 from langchain_core.messages import HumanMessage, AIMessage 
 from langgraph_backend_db import model, get_all_threads
 import uuid 
+import dotenv 
+
+dotenv.load_dotenv()  # Load environment variables from .env file, if it exists
 
 # --- UTILITY FUNCTIONS ---
 
@@ -34,7 +37,12 @@ if 'thread_id' not in st.session_state:
 add_thread(st.session_state['thread_id'])
 
 # Dynamic config targeting the selected thread
-CONFIG = {'configurable': {'thread_id': st.session_state['thread_id']}}
+CONFIG = {'configurable': {'thread_id': st.session_state['thread_id']}} #this config variable is absolutely fine but to integrate the threads with langsmith, we need to pass the thread_id in the config of the model 
+CONFIG = {
+    'configurable':{'thread_id': st.session_state['thread_id']},
+    'metadata' : {'thread_id': st.session_state['thread_id']}, # Adding thread_id to metadata for better traceability in LangSmith
+    "run_name" : "chat_run " + st.session_state['thread_id'][:8]
+}
 
 st.title("LangGraph Chatbot")
 
