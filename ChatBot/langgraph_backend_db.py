@@ -39,9 +39,3 @@ def get_all_threads():
         threads.add(checkpoint.config['configurable']['thread_id'])
     return list(threads)
 
-#testing
-# res = model.invoke({"messages": [HumanMessage(content="Hello, my name is John.")]}, config={"configurable": {"thread_id": "test_thread"}})
-# print(res)
-
-# print(model.get_state({"configurable": {"thread_id": "test_thread"}}))
-
