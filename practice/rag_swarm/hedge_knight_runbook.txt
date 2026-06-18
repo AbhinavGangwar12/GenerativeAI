@@ -1,0 +1,15 @@
+SRE RUNBOOK: Hedge_Knight Service
+Service Owner: Ser Duncan
+Criticality: Tier 1
+
+DESCRIPTION:
+The Hedge_Knight service handles the core ingress traffic for the Ashford Tourney cluster, managing registration, armor inventory, and trial-by-combat queuing.
+
+KNOWN INCIDENTS & RESOLUTIONS:
+1. Out of Memory (OOM) Crashes:
+If Prometheus metrics show the Hedge_Knight pod memory usage exceeding 70%, it is likely experiencing a heap exhaustion loop caused by too many concurrent squire requests. 
+Do NOT simply restart the pod, as the sudden influx of queued traffic will immediately crash it again. 
+Resolution: First, edit the deployment config map to increase the memory limit and the Java heap size (-Xmx) by at least 512Mi. Once the new limits are applied to the deployment, perform a rolling restart of the pods.
+
+2. Latency Spikes:
+If network latency exceeds 150ms, check the Baelor_Breakspear node CPU. If the node is throttled, cordon the node and allow the horizontal pod autoscaler to migrate traffic to a less burdened worker node.

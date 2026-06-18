@@ -1,0 +1,15 @@
+SRE RUNBOOK: Tanselle Database
+Service Owner: Puppet Master Team
+Criticality: Tier 0 (Datastore)
+
+DESCRIPTION:
+The Tanselle Database is the primary relational datastore for the cluster, holding all critical tournament state, user profiles, and shield wall configurations.
+
+KNOWN INCIDENTS & RESOLUTIONS:
+1. Shield Wall Compromised (Connection Refused):
+If Datadog logs indicate that the 'Tanselle' database connection has failed or the "shield wall is compromised," this is a critical alert. This typically happens when the connection pool is exhausted.
+Resolution: Check the max_connections parameter in the primary PostgreSQL configuration. You must increase the connection limits in the PgBouncer pooler configuration and deploy the patch. 
+
+2. Aerion Brightflame Firewall Drops:
+If the API returns a 500 Internal Server Error immediately after a database timeout, check the firewall rules. The automated "Brightflame" security daemon sometimes aggressively drops packets on port 5432 if it detects a burst in traffic.
+Resolution: Whitelist the Hedge_Knight service IP range in the Brightflame daemon configuration.

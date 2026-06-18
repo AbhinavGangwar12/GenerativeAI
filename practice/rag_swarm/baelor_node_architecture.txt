@@ -1,0 +1,14 @@
+ARCHITECTURE DOC: Baelor_Breakspear Node
+Service Owner: Infrastructure Team
+
+DESCRIPTION:
+The Baelor_Breakspear node is the heavy-compute backbone of the Ashford Tourney Cluster. It is responsible for intensive background processing, metrics aggregation, and orchestrating the Trial of Seven background jobs.
+
+MONITORING THRESHOLDS:
+- CPU Warning Threshold: 80%
+- CPU Critical Threshold: 95%
+- Disk Space Critical Threshold: 85%
+
+REMEDIATION STRATEGIES:
+If Baelor_Breakspear hits the 80% CPU threshold, no immediate action is required unless it sustains that load for more than 5 minutes. If it exceeds 5 minutes, it means a rogue background job is hanging.
+Resolution: Query the active processes and terminate any orphaned Trial of Seven jobs. If the CPU remains high, spin up a secondary spot instance (the 'Raymun_Fossoway' node) to share the compute load.
