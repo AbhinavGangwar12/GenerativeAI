@@ -15,7 +15,7 @@ model = ChatOllama(model="llama3.1")
 embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 vectorstore = FAISS.from_documents(chunks, embeddings)
 
-response = vectorstore.similarity_search("Where did Dunk and Egg compete?", k=2)
+# response = vectorstore.similarity_search("Where did Dunk and Egg compete?", k=2)
 
 prompt = ChatPromptTemplate.from_messages([
     ("system", "Your task is to give the response to the user input based on the context provided and the question. The context is as follows: {context}\n The question is: {question}"),
