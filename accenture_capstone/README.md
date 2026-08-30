@@ -69,6 +69,22 @@ health-education interactions per patient across sessions, which raises real
 privacy/consent questions this prototype has no authentication, encryption, or compliance
 story to support. The design is intentionally session-scoped and ephemeral.
 
+### Search: model-initiated tool calling, not a direct SDK call
+An earlier version called the raw `tavily-python` SDK directly from a Python function.
+That works, but doesn't match the rubric's literal wording — "Use the Tavily search
+engine (via LangChain community tool)" and "OpenAI successfully calls Tavily for search"
+describe the **model** deciding to invoke the tool, not the code calling Tavily and handing
+the LLM a result afterward. The current version binds `TavilySearchResults` (the LangChain
+community tool) to the LLM with `.bind_tools()`; `search_agent_node` lets the model issue
+the tool call itself, and LangGraph's prebuilt `ToolNode` executes it. `force_search_node`
+is a safety net for the rare case the model doesn't call the tool on its own, so the
+workflow still completes. This also gives a real message trace — `state["messages"]`
+carries the tool call, the tool result, the summary, the quiz question, and the grade — so
+"the model has access to previous messages (tool calls, summary, quiz question, etc)" is
+satisfied by an actual message history rather than separate untracked fields. `reset_node`
+clears that history with `RemoveMessage` between topics, same privacy reasoning as the rest
+of the state.
+
 ### No RAG / chunking for grading citations
 We considered chunking the summary (or raw search results) for retrieval-based citations,
 and separately considered scoring the patient's answer via chunk-level precision/recall.
@@ -96,14 +112,56 @@ the notebook.
 | Rubric criterion | Where it's satisfied |
 |---|---|
 | API keys loaded correctly | Setup cell — `load_dotenv('config.env')` + asserts |
-| Tavily search called for the topic | `search_tavily_node` |
+| Tavily called via the LangChain community tool | `TavilySearchResults` bound to the LLM in `search_agent_node` |
+| Model itself calls Tavily for search | `search_agent_node` (`.bind_tools`) + `tool_node` (`ToolNode`) |
+| Model has access to previous messages (tool calls, summary, quiz question) | `state["messages"]` (`add_messages` reducer), appended to by search, summary, question, and grade nodes |
 | Summarization — 3–4 paragraphs, summary-only source | `summary_node` prompt |
 | Quiz question answerable from summary alone | `generate_question_node` prompt |
-| Grading with citation from summary | `grade_node` + `verify_citation()` fallback |
+| Grading — letter grade (A–F) with citation from summary | `grade_node` + `verify_citation()` fallback |
 | State object referenced/updated by nodes | `State` TypedDict; every node returns a partial update |
 | Nodes with single responsibility | separate ask / present / generate / grade nodes throughout |
 | Conditional edges for restart/exit, with state reset | `route_ready`, `route_continue`, `reset_node` |
 | Full workflow executes end-to-end | final `graph.invoke()` cell |
+
+## Sanity Checks
+
+The interactive workflow itself depends on live LLM output and patient input, so it isn't
+something you can assert against meaningfully. The deterministic helper functions
+underneath it are testable, though, so `main.ipynb` includes an optional
+`run_sanity_checks()` cell (Section 8) that exercises them directly — no LLM calls, no
+`input()`, runs in under a second.
+
+**Coverage:** `verify_citation()` (accepts a quote that's genuinely in the summary,
+rejects one that isn't, rejects text with no quote at all), `closest_sentence()` (the
+fallback-citation matcher returns text actually drawn from the summary), and the two
+conditional-edge routers `route_ready()` / `route_continue()` (route correctly on
+`"yes"`/`"y"`/`"no"`, and `route_ready` fails safe — loops back rather than crashing — on
+unrecognized input).
+
+**Result:** 11/11 checks pass.
+
+```
+✅ PASS — verify_citation: True for a quote actually in the summary
+✅ PASS — verify_citation: False for a quote not in the summary
+✅ PASS — verify_citation: False when no quote is present at all
+✅ PASS — closest_sentence: returns text drawn from the summary
+✅ PASS — route_ready: 'yes' routes to generate_question_node
+✅ PASS — route_ready: 'y' routes to generate_question_node
+✅ PASS — route_ready: 'no' loops back to ready_check_node
+✅ PASS — route_ready: unrecognized input fails safe (loops back, doesn't crash)
+✅ PASS — route_continue: 'yes' routes to reset_node
+✅ PASS — route_continue: 'y' routes to reset_node
+✅ PASS — route_continue: 'no' routes to END
+-------------------------------------------------------------------
+11/11 checks passed
+```
+
+Not included, on purpose: the LLM-driven nodes (extraction, summarization, question
+generation, grading) and the Tavily tool call. Their outputs vary by design — different
+topics, different search results, different phrasing each run — so there's no fixed
+expected value to assert against without building a golden dataset and an LLM-as-judge
+harness, which is disproportionate to what this rubric grades. Manual end-to-end runs
+(Section 9) are the appropriate check for that part of the flow.
 
 ## Known Limitations / Future Work
 
