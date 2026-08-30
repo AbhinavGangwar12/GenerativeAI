@@ -1,0 +1,12 @@
+langgraph>=0.2.0
+langchain>=0.3.0
+langchain-community>=0.3.0
+langchain-openai>=0.2.0
+tavily-python>=0.5.0
+python-dotenv>=1.0.0
+pydantic>=2.0.0
+ipython
+
+# Dev-only, used for local testing before swapping to ChatOpenAI — safe to remove
+# for the graded submission if you don't plan to run against Ollama.
+langchain-ollama>=0.2.0

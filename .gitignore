@@ -1,1 +1,3 @@
 venv
+accenture_capstone/__pycache__/
+accenture_capstone/config.env
