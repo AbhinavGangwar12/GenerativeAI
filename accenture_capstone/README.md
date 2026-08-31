@@ -21,11 +21,15 @@ README.md         # this file
 4. Activate the venv (Windows PowerShell: `.venv\Scripts\Activate`)
 5. Create `config.env` in the project folder:
    ```
-   OPENAI_API_KEY="sk-***********"
+   MISTRAL_API_KEY="your-mistral-key"
    TAVILY_API_KEY="tvly-***********"
+   # OPENAI_API_KEY="sk-***********"   # not currently used — see Design Decisions
+   # GOOGLE_API_KEY="your-google-key"  # not currently used — see Design Decisions
    ```
-6. `uv add -r requirements.txt`
-7. Open `main.ipynb` and run all cells. The last cell starts an interactive session
+6. Install dependencies — either:
+   - `uv add -r requirements.txt`, or
+   - `pip install -r requirements.txt` (this submission doesn't include `pyproject.toml`/`uv.lock`, so plain `pip` works directly against `requirements.txt`)
+7. Open `main.ipynb` and run all cells. The last cell starts an interactive session —
    `input()` prompts appear as notebook modal boxes, output prints below each cell.
 
 ## Design Decisions and Why
@@ -45,13 +49,14 @@ e.g. a webhook handler returns while waiting on an external event (a Slack reply
 comment) and resumes later, potentially in a different process, via `Command(resume=...)`
 against a checkpoint. HealthBot's HITL steps (topic, ready-check, quiz answer, continue)
 all happen synchronously, inline, in a single `graph.invoke()` call within one running
-Python process. Python's built-in `input()` already blocks execution exactly where needed there's no separate resume step, so nothing needs to be checkpointed or restored.
+Python process. Python's built-in `input()` already blocks execution exactly where needed
+— there's no separate resume step, so nothing needs to be checkpointed or restored.
 Reaching for `interrupt()` + `InMemorySaver`/Postgres here would add real complexity to
 solve a problem (cross-process resumability) this notebook doesn't have.
 
 ### No dedicated short-term memory (STM) layer
 Within a single topic, LangGraph's own `State` object already carries everything the flow
-needs across nodes the search results, the summary, the question, the answer. A
+needs across nodes — the search results, the summary, the question, the answer. A
 dedicated STM layer (a conversation buffer, sliding window, or message-history summarizer)
 exists to manage context-window pressure across long, open-ended multi-turn dialogue. Here
 each state field is small (a topic name, a handful of search snippets, a 3–4 paragraph
@@ -70,11 +75,12 @@ story to support. The design is intentionally session-scoped and ephemeral.
 
 ### Search: model-initiated tool calling, not a direct SDK call
 An earlier version called the raw `tavily-python` SDK directly from a Python function.
-That works, but doesn't match the rubric's literal wording "Use the Tavily search
+That works, but doesn't match the rubric's literal wording — "Use the Tavily search
 engine (via LangChain community tool)" and "OpenAI successfully calls Tavily for search"
 describe the **model** deciding to invoke the tool, not the code calling Tavily and handing
-the LLM a result afterward. The current version binds `TavilySearchResults` (the LangChain
-community tool) to the LLM with `.bind_tools()`; `search_agent_node` lets the model issue
+the LLM a result afterward. The current version binds `TavilySearch` (the `langchain-tavily`
+tool — the current maintained package; the older `TavilySearchResults` in
+`langchain_community` is deprecated as of LangChain 0.3.25) to the LLM with `.bind_tools()`; `search_agent_node` lets the model issue
 the tool call itself, and LangGraph's prebuilt `ToolNode` executes it. `force_search_node`
 is a safety net for the rare case the model doesn't call the tool on its own, so the
 workflow still completes. This also gives a real message trace `state["messages"]`
@@ -100,19 +106,28 @@ required to quote it verbatim, and that quote is verified programmatically after
 citation (nearest-matching sentence via `difflib`) if the model still doesn't comply. This
 gives reliable, grounded citations without a retrieval pipeline.
 
-### Model: Ollama in development, OpenAI for submission
+### Model: Ollama in development, Mistral for submission (OpenAI unavailable)
 `ChatOllama` (local, free) was used while iterating on prompts and graph structure, to
-avoid burning API credits during development. The submission swaps to `ChatOpenAI`, per
-the project's environment setup instructions see the commented-out import at the top of
-the notebook.
+avoid burning API credits during development.
+
+**Submission model: Mistral (free tier), not OpenAI.** The rubric and setup instructions
+specify OpenAI; during testing, OpenAI access was unavailable, and course staff confirmed
+Mistral's free-tier model (`ChatMistralAI`, `mistral-small-latest`) as an approved
+substitute. (Gemini was tried as a first fallback and is left commented out in the code as
+a record of that; Mistral is the one actually confirmed and submitted.) The setup cell
+loads `MISTRAL_API_KEY` alongside the currently-unused `OPENAI_API_KEY` and `GOOGLE_API_KEY`,
+and the LLM assignment cell has the `ChatOpenAI` line ready to re-enable reverting once
+OpenAI access is restored is a one-line change, not a rewrite. Everything else (tool
+binding, structured output, message trace) works identically across providers, since
+LangChain's chat model interface is provider-agnostic.
 
 ## Rubric Coverage
 
 | Rubric criterion | Where it's satisfied |
 |---|---|
 | API keys loaded correctly | Setup cell — `load_dotenv('config.env')` + asserts |
-| Tavily called via the LangChain community tool | `TavilySearchResults` bound to the LLM in `search_agent_node` |
-| Model itself calls Tavily for search | `search_agent_node` (`.bind_tools`) + `tool_node` (`ToolNode`) |
+| Tavily called via the LangChain community tool | `TavilySearch` (`langchain-tavily`) bound to the LLM in `search_agent_node` |
+| Model itself calls Tavily for search | `search_agent_node` (`.bind_tools`) + `tool_node` (`ToolNode`) — model is Mistral, approved substitute for OpenAI, see Design Decisions |
 | Model has access to previous messages (tool calls, summary, quiz question) | `state["messages"]` (`add_messages` reducer), appended to by search, summary, question, and grade nodes |
 | Summarization — 3–4 paragraphs, summary-only source | `summary_node` prompt |
 | Quiz question answerable from summary alone | `generate_question_node` prompt |
@@ -121,6 +136,17 @@ the notebook.
 | Nodes with single responsibility | separate ask / present / generate / grade nodes throughout |
 | Conditional edges for restart/exit, with state reset | `route_ready`, `route_continue`, `reset_node` |
 | Full workflow executes end-to-end | final `graph.invoke()` cell |
+
+## Additional Safeguard: Non-Medical Topic Rejection
+
+Not a rubric requirement, but added as a mandatory sanity check: `validate_topic_node`
+classifies the patient's input as a legitimate health/medical topic or not, immediately
+after it's collected and *before* any Tavily search or summarization work happens on it.
+Non-medical input (general knowledge, off-topic requests, nonsense, or an attempt to get
+the bot to do something unrelated to health education) is rejected with a short message
+and routed straight to `continue_check_node` skipping search, summary, and quiz
+entirely, rather than burning a search + LLM call on something the bot can't meaningfully
+educate on.
 
 ## Sanity Checks
 
@@ -132,12 +158,13 @@ underneath it are testable, though, so `main.ipynb` includes an optional
 
 **Coverage:** `verify_citation()` (accepts a quote that's genuinely in the summary,
 rejects one that isn't, rejects text with no quote at all), `closest_sentence()` (the
-fallback-citation matcher returns text actually drawn from the summary), and the two
+fallback-citation matcher returns text actually drawn from the summary), the two
 conditional-edge routers `route_ready()` / `route_continue()` (route correctly on
-`"yes"`/`"y"`/`"no"`, and `route_ready` fails safe — loops back rather than crashing on
-unrecognized input).
+`"yes"`/`"y"`/`"no"`, and `route_ready` fails safe loops back rather than crashing on
+unrecognized input), and `route_topic_validity()` (routes valid topics to `extraction_node`,
+rejects to `reject_topic_node`).
 
-**Result:** 11/11 checks pass.
+**Result:** 13/13 checks pass.
 
 ```
 ✅ PASS — verify_citation: True for a quote actually in the summary
@@ -148,15 +175,17 @@ unrecognized input).
 ✅ PASS — route_ready: 'y' routes to generate_question_node
 ✅ PASS — route_ready: 'no' loops back to ready_check_node
 ✅ PASS — route_ready: unrecognized input fails safe (loops back, doesn't crash)
+✅ PASS — route_topic_validity: valid topic routes to extraction_node
+✅ PASS — route_topic_validity: invalid topic routes to reject_topic_node
 ✅ PASS — route_continue: 'yes' routes to reset_node
 ✅ PASS — route_continue: 'y' routes to reset_node
 ✅ PASS — route_continue: 'no' routes to END
 -------------------------------------------------------------------
-11/11 checks passed
+13/13 checks passed
 ```
 
 Not included, on purpose: the LLM-driven nodes (extraction, summarization, question
-generation, grading) and the Tavily tool call. Their outputs vary by design different
+generation, grading) and the Tavily tool call. Their outputs vary by design — different
 topics, different search results, different phrasing each run so there's no fixed
 expected value to assert against without building a golden dataset and an LLM-as-judge
 harness, which is disproportionate to what this rubric grades. Manual end-to-end runs
