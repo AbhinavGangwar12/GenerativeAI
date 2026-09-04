@@ -1,0 +1,16 @@
+[
+  {
+    "rule_id": "JST-01",
+    "title": "Jousting Scoring",
+    "category": "Joust",
+    "content": "A knight is awarded three points for shattering a lance on the opponent's shield or torso. Striking the opponent's helm awards five points. Unhorsing an opponent is an instant victory for the tilt.",
+    "active": true
+  },
+  {
+    "rule_id": "MEL-05",
+    "title": "Melee Weapons",
+    "category": "Melee",
+    "content": "All weapons used in the grand melee must be blunted. Morningstars and flails are strictly prohibited. Any knight striking a yielding opponent will be disqualified and forfeit their armor.",
+    "active": true
+  }
+]

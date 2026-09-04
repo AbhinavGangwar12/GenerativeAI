@@ -1,0 +1,14 @@
+{
+  "KNT-001": {
+    "name": "Ser Duncan the Tall",
+    "status": "Active Hedge Knight",
+    "tournaments_won": 0,
+    "current_squire": "Egg"
+  },
+  "KNT-002": {
+    "name": "Ser Eustace Osgrey",
+    "status": "Landed Knight",
+    "tournaments_won": 1,
+    "current_squire": "None"
+  }
+}
