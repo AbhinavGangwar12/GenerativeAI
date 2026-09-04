@@ -40,23 +40,24 @@ class TechNovaLoader:
 
         policy_docs = []
         with self.policies_path.open("r", encoding="utf-8") as f:
-            data = json.load(f)
-            category = data.get("category", "unknown")
-            title = data.get("title", "unknown")
-            content = data.get("content", "")
-            policy_id = data.get("id", "unknown")
-            text = f"""
-            Policy ID: {policy_id}
-            Title: {title}
-            Category: {category}
-            Content: {content}
-            """
-            chunks = splitter.split_text(text)
-            for chunk in chunks:
-                policy_docs.append(
-                    Document(
-                        page_content=chunk,
-                        metadata={"source": "policy", "category": category, "title": title, "id": policy_id}
+            policies = json.load(f)
+            for data in policies:
+                category = data.get("category", "unknown")
+                title = data.get("title", "unknown")
+                content = data.get("content", "")
+                policy_id = data.get("id", "unknown")
+                text = f"""
+                Policy ID: {policy_id}
+                Title: {title}
+                Category: {category}
+                Content: {content}
+                """
+                chunks = splitter.split_text(text)
+                for chunk in chunks:
+                    policy_docs.append(
+                        Document(
+                            page_content=chunk,
+                            metadata={"source": "policy", "category": category, "title": title, "id": policy_id}
+                        )
                     )
-                )
         return catalog_docs + policy_docs

@@ -40,5 +40,5 @@ class TechNovaVectorStore:
             raise ValueError("Vector store is not initialized. Please create the store first.")
 
         search_filter = {"source" : doc_type} if doc_type else None
-        results = self.vector_store.max_marginal_relevance_search(query, k=k, filter=search_filter)
+        results = await self.vector_store.max_marginal_relevance_search(query, k=k, filter=search_filter)
         return results
