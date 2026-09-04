@@ -1,0 +1,16 @@
+[
+  {
+    "policy_id": "RTN-101",
+    "title": "Hardware Return Policy",
+    "category": "Returns",
+    "content": "All enterprise hardware, including workstations and server racks, can be returned within 30 days of delivery. A 15% restocking fee applies if the original packaging is opened or damaged. Software licenses bundled with hardware are non-refundable.",
+    "active": true
+  },
+  {
+    "policy_id": "WRT-202",
+    "title": "Extended Warranty Terms",
+    "category": "Warranty",
+    "content": "The extended warranty covers parts and labor for 3 years from the date of purchase. It includes next-business-day on-site support for server hardware. Liquid damage and accidental drops are strictly excluded from warranty coverage.",
+    "active": true
+  }
+]
