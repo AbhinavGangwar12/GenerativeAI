@@ -1,0 +1,14 @@
+    {
+  "ALT-404": {
+    "system": "Kubernetes",
+    "issue": "CrashLoopBackOff",
+    "pod_name": "payment-api-7b89f4x",
+    "namespace": "production-billing"
+  },
+  "ALT-505": {
+    "system": "Nagios",
+    "issue": "High CPU Utilization",
+    "node": "worker-node-03",
+    "region": "us-east-1"
+  }
+}
