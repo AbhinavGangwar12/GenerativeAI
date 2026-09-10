@@ -1,0 +1,25 @@
+{
+  "export_metadata": {
+    "date": "2026-09-09",
+    "facility": "Central City Hospital"
+  },
+  "records": [
+    {
+      "patient_id": "P-8821",
+      "demographics": {"age": 45, "gender": "M"},
+      "medical_history": [
+        {"condition": "Type 2 Diabetes", "diagnosed_year": 2019, "active": true},
+        {"condition": "Asthma", "diagnosed_year": 2005, "active": false}
+      ],
+      "current_medications": ["Metformin", "Albuterol"]
+    },
+    {
+      "patient_id": "P-9932",
+      "demographics": {"age": 52, "gender": "F"},
+      "medical_history": [
+        {"condition": "Hypertension", "diagnosed_year": 2021, "active": true}
+      ],
+      "current_medications": ["Lisinopril"]
+    }
+  ]
+}

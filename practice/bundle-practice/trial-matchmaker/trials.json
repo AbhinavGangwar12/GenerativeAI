@@ -1,0 +1,16 @@
+[
+  {
+    "trial_id": "TRIAL-101",
+    "title": "Efficacy of NovaMetformin for Type 2 Diabetes",
+    "phase": "Phase 3",
+    "inclusion_criteria": "Adults 18-65 with Type 2 Diabetes. Must be currently taking standard Metformin.",
+    "status": "Recruiting"
+  },
+  {
+    "trial_id": "TRIAL-204",
+    "title": "Beta-Blockers and Advanced Hypertension",
+    "phase": "Phase 2",
+    "inclusion_criteria": "Patients over 40 with a history of hypertension. No history of cardiac arrest.",
+    "status": "Active"
+  }
+]
