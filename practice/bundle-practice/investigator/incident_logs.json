@@ -1,0 +1,14 @@
+[
+  {
+    "alert_id": "INC-001",
+    "timestamp": "2026-09-13T08:00:00Z",
+    "severity": "CRITICAL",
+    "description": "Endpoint sensor detected an obfuscated PowerShell script executing from C:\\Windows\\Temp\\update.ps1."
+  },
+  {
+    "alert_id": "INC-002",
+    "timestamp": "2026-09-13T09:15:00Z",
+    "severity": "HIGH",
+    "description": "Mass file modification detected on FileServer01 via SMB. File extensions are being changed to .locked."
+  }
+]
