@@ -1,0 +1,30 @@
+[
+  {
+    "product_id": "PROD-991",
+    "name": "QuantumBook Pro 15",
+    "category": "Laptops",
+    "details": {
+      "processor": "M4 Max",
+      "ram": "32GB Unified Memory",
+      "storage": "1TB SSD"
+    },
+    "ports": ["2x USB-C", "1x HDMI", "3.5mm Headphone Jack"],
+    "faq": [
+      {"q": "Can I upgrade the RAM?", "a": "No, the memory is unified and soldered to the board."},
+      {"q": "Does it support external monitors?", "a": "Yes, up to 3 external 6K displays."}
+    ]
+  },
+  {
+    "product_id": "PROD-102",
+    "name": "SonicBuds Ultra",
+    "category": "Audio",
+    "details": {
+      "battery_life": "8 hours (24 hours with case)",
+      "noise_cancellation": "Active Noise Cancellation (ANC)"
+    },
+    "ports": ["USB-C charging port"],
+    "faq": [
+      {"q": "Are they waterproof?", "a": "They are IPX4 water-resistant, suitable for workouts but not swimming."}
+    ]
+  }
+]
