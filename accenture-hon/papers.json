@@ -1,0 +1,37 @@
+[
+  {
+    "title": "Post-Quantum Cryptography and Quantum Key Distribution: A Survey",
+    "year": 2024,
+    "keywords": ["quantum computing", "cryptography", "QKD", "post-quantum"],
+    "abstract": "This paper provides an extensive survey on post-quantum cryptographic primitives and quantum key distribution algorithms in the NISQ era, highlighting recent advancements in securing communications against quantum attacks.",
+    "full_text": "Quantum computing poses a significant threat to classical cryptographic systems like RSA and ECC. To mitigate these risks, researchers are focusing on two main approaches: Post-Quantum Cryptography (PQC) and Quantum Key Distribution (QKD). PQC involves mathematical algorithms thought to be secure against quantum computers, while QKD uses the principles of quantum mechanics to guarantee secure key exchange."
+  },
+  {
+    "title": "Quantum Cryptography: A Comprehensive Review",
+    "year": 2022,
+    "keywords": ["quantum computing", "encryption", "quantum security", "protocols"],
+    "abstract": "A review of quantum computing applications to modern secure communication and cryptographic protocols, focusing on BB84 and E91.",
+    "full_text": "The advent of quantum mechanics has revolutionized the field of cryptography. By utilizing quantum states to encode information, protocols such as BB84 and E91 offer theoretical unconditional security. This comprehensive review evaluates the practical implementations of these protocols over the last decade and the ongoing challenges in long-distance quantum communication."
+  },
+  {
+    "title": "A Primer on Classical Cryptography Systems",
+    "year": 2021,
+    "keywords": ["cryptography", "RSA", "AES", "security"],
+    "abstract": "An introductory overview of classical cryptographic systems, including symmetric and asymmetric encryption standards.",
+    "full_text": "Before the quantum era, cryptographic systems relied heavily on computational complexity. RSA relies on the difficulty of integer factorization, while AES relies on substitution-permutation networks. This paper serves as a primer for understanding these foundational technologies."
+  },
+  {
+    "title": "Recent Advances in Generative AI for Text Synthesis",
+    "year": 2023,
+    "keywords": ["LLM", "Generative AI", "text generation"],
+    "abstract": "This paper explores the evolution of large language models and their capabilities in generating human-like text across various domains.",
+    "full_text": "Generative AI has seen rapid growth with the scaling of transformer-based architectures. By training on massive corpora of text data, models can perform zero-shot and few-shot learning tasks with remarkable accuracy. This survey details the architectural improvements from 2020 to 2023."
+  },
+  {
+    "title": "Attention Is All You Need",
+    "year": 2017,
+    "keywords": ["deep learning", "transformer", "attention mechanism", "NLP"],
+    "abstract": "The dominant sequence transduction models are based on complex recurrent or convolutional neural networks. We propose a new simple network architecture, the Transformer, based solely on attention mechanisms.",
+    "full_text": "Recurrent neural networks, long short-term memory and gated recurrent neural networks in particular, have been firmly established as state of the art approaches in sequence modeling. We propose the Transformer, a model architecture eschewing recurrence and instead relying entirely on an attention mechanism to draw global dependencies between input and output."
+  }
+]

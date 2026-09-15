@@ -1,0 +1,10 @@
+langchain-core
+langchain
+langchain-community
+langchain-huggingface
+langchain-text-splitters
+langchain-mistralai
+faiss-cpu
+sentence-transformers
+numpy
+python-dotenv
